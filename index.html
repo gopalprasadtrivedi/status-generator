@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WhatsApp Status Image Generator</title>
+    
+    <!-- Google Fonts - Noto Sans & Noto Serif for Hindi + English support -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif+Devanagari:wght@400;500;600;700&family=Noto+Serif:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>📱 Status Image Maker</h1>
+            <p class="tagline">Create beautiful WhatsApp status images</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- Step 1: Theme Selection -->
+            <section class="form-section">
+                <h2 class="section-title">
+                    <span class="step-number">1</span>
+                    Choose Theme
+                </h2>
+                <div class="theme-grid" id="themeGrid">
+                    <button type="button" class="theme-btn active" data-theme="patriotic">
+                        <span class="theme-icon">🇮🇳</span>
+                        <span class="theme-name">Patriotic</span>
+                    </button>
+                    <button type="button" class="theme-btn" data-theme="religious">
+                        <span class="theme-icon">🙏</span>
+                        <span class="theme-name">Religious</span>
+                    </button>
+                    <button type="button" class="theme-btn" data-theme="astrological">
+                        <span class="theme-icon">⭐</span>
+                        <span class="theme-name">Astrological</span>
+                    </button>
+                    <button type="button" class="theme-btn" data-theme="motivational">
+                        <span class="theme-icon">💪</span>
+                        <span class="theme-name">Motivational</span>
+                    </button>
+                    <button type="button" class="theme-btn" data-theme="general">
+                        <span class="theme-icon">🎨</span>
+                        <span class="theme-name">General</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 2: Template Selection -->
+            <section class="form-section">
+                <h2 class="section-title">
+                    <span class="step-number">2</span>
+                    Choose Style
+                </h2>
+                <div class="template-grid" id="templateGrid">
+                    <button type="button" class="template-btn active" data-template="classic">
+                        <span class="template-preview classic-preview">Aa</span>
+                        <span class="template-name">Classic</span>
+                    </button>
+                    <button type="button" class="template-btn" data-template="modern">
+                        <span class="template-preview modern-preview">Aa</span>
+                        <span class="template-name">Modern</span>
+                    </button>
+                    <button type="button" class="template-btn" data-template="elegant">
+                        <span class="template-preview elegant-preview">Aa</span>
+                        <span class="template-name">Elegant</span>
+                    </button>
+                    <button type="button" class="template-btn" data-template="bold">
+                        <span class="template-preview bold-preview">Aa</span>
+                        <span class="template-name">Bold</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Step 3: Text Input -->
+            <section class="form-section">
+                <h2 class="section-title">
+                    <span class="step-number">3</span>
+                    Add Your Text
+                </h2>
+                <p class="section-hint">All fields are optional. Leave empty if not needed.</p>
+
+                <div class="input-group">
+                    <label for="titleText">Title (Top)</label>
+                    <input 
+                        type="text" 
+                        id="titleText" 
+                        placeholder="e.g., Happy Republic Day / गणतंत्र दिवस"
+                        maxlength="50"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="subtitleText">Subtitle</label>
+                    <input 
+                        type="text" 
+                        id="subtitleText" 
+                        placeholder="e.g., 26th January 2025"
+                        maxlength="60"
+                    >
+                </div>
+
+                <div class="input-group">
+                    <label for="bodyText1">Main Message (Line 1)</label>
+                    <textarea 
+                        id="bodyText1" 
+                        rows="2"
+                        placeholder="e.g., जय हिंद / Jai Hind"
+                        maxlength="100"
+                    ></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="bodyText2">Main Message (Line 2)</label>
+                    <textarea 
+                        id="bodyText2" 
+                        rows="2"
+                        placeholder="e.g., वंदे मातरम् / Vande Mataram"
+                        maxlength="100"
+                    ></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="footerText">Footer (Bottom)</label>
+                    <input 
+                        type="text" 
+                        id="footerText" 
+                        placeholder="e.g., Your Name / आपका नाम"
+                        maxlength="40"
+                    >
+                </div>
+
+                <!-- Footer Alignment -->
+                <div class="input-group">
+                    <label>Footer Position</label>
+                    <div class="alignment-options" id="alignmentOptions">
+                        <button type="button" class="align-btn" data-align="left">
+                            ⬅️ Left
+                        </button>
+                        <button type="button" class="align-btn active" data-align="center">
+                            ↔️ Center
+                        </button>
+                        <button type="button" class="align-btn" data-align="right">
+                            Right ➡️
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Generate Button -->
+            <section class="generate-section">
+                <button type="button" id="generateBtn" class="generate-btn">
+                    <span class="btn-icon">🖼️</span>
+                    Generate Image
+                </button>
+                <p class="generate-hint">Image will download automatically</p>
+            </section>
+
+            <!-- Loading Indicator -->
+            <div id="loadingOverlay" class="loading-overlay hidden">
+                <div class="loading-content">
+                    <div class="spinner"></div>
+                    <p>Creating your image...</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Made with ❤️ for WhatsApp Status</p>
+        </footer>
+    </div>
+
+    <!-- Hidden Canvas for Image Generation -->
+    <canvas id="imageCanvas" width="1080" height="1920" style="display: none;"></canvas>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
