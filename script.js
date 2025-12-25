@@ -98,8 +98,8 @@ const TEMPLATES = {
             }
         },
         spacing: {
-            titleTop: 180,
-            subtitleGap: 30,
+            titleTop: 200,
+            subtitleGap: 50,
             bodyGap: 80,
             footerBottom: 150
         }
@@ -133,8 +133,8 @@ const TEMPLATES = {
             }
         },
         spacing: {
-            titleTop: 200,
-            subtitleGap: 25,
+            titleTop: 220,
+            subtitleGap: 45,
             bodyGap: 70,
             footerBottom: 140
         }
@@ -168,8 +168,8 @@ const TEMPLATES = {
             }
         },
         spacing: {
-            titleTop: 220,
-            subtitleGap: 35,
+            titleTop: 240,
+            subtitleGap: 55,
             bodyGap: 90,
             footerBottom: 160
         }
@@ -203,8 +203,8 @@ const TEMPLATES = {
             }
         },
         spacing: {
-            titleTop: 170,
-            subtitleGap: 20,
+            titleTop: 190,
+            subtitleGap: 40,
             bodyGap: 60,
             footerBottom: 130
         }
