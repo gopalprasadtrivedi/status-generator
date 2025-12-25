@@ -38,27 +38,27 @@ const CANVAS_HEIGHT = 1920;
 const THEME_CONFIG = {
     patriotic: {
         folder: 'assets/patriotic',
-        imageCount: 3,  // Update this if you add more images (4.jpg, 5.jpg, etc.)
+        imageCount: 7,  // Update this if you add more images (4.jpg, 5.jpg, etc.)
         extension: 'jpg'
     },
     religious: {
         folder: 'assets/religious',
-        imageCount: 3,  // Update this if you add more images
+        imageCount: 7,  // Update this if you add more images
         extension: 'jpg'
     },
     astrological: {
         folder: 'assets/astrological',
-        imageCount: 3,  // Update this if you add more images
+        imageCount: 7,  // Update this if you add more images
         extension: 'jpg'
     },
     motivational: {
         folder: 'assets/motivational',
-        imageCount: 3,  // Update this if you add more images
+        imageCount: 7,  // Update this if you add more images
         extension: 'jpg'
     },
     general: {
         folder: 'assets/general',
-        imageCount: 3,  // Update this if you add more images
+        imageCount: 7,  // Update this if you add more images
         extension: 'jpg'
     }
 };
