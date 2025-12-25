@@ -228,6 +228,22 @@ const state = {
         body1: '',
         body2: '',
         footer: ''
+    },
+    // Custom font sizes (null means use template default)
+    customFontSizes: {
+        title: null,
+        subtitle: null,
+        body1: null,
+        body2: null,
+        footer: null
+    },
+    // Custom colors (null means use default white)
+    customColors: {
+        title: null,
+        subtitle: null,
+        body1: null,
+        body2: null,
+        footer: null
     }
 };
 
@@ -342,6 +358,9 @@ function initializeElements() {
     elements.inputs.body1 = document.getElementById('bodyText1');
     elements.inputs.body2 = document.getElementById('bodyText2');
     elements.inputs.footer = document.getElementById('footerText');
+    
+    // Initialize font sizes from default template
+    resetFontSizesToTemplate();
 }
 
 /**
@@ -356,6 +375,24 @@ function attachEventListeners() {
     // Template selection
     elements.templateButtons.forEach(btn => {
         btn.addEventListener('click', () => handleTemplateSelect(btn));
+    });
+    
+    // Font size buttons
+    document.querySelectorAll('.font-size-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const field = e.target.dataset.field;
+            const action = e.target.dataset.action;
+            handleFontSizeChange(field, action);
+        });
+    });
+    
+    // Color pickers
+    document.querySelectorAll('.color-picker').forEach(picker => {
+        picker.addEventListener('change', (e) => {
+            const field = e.target.dataset.field;
+            const color = e.target.value;
+            handleColorChange(field, color);
+        });
     });
     
     // Alignment selection
@@ -416,6 +453,92 @@ function handleTemplateSelect(selectedBtn) {
     elements.templateButtons.forEach(btn => btn.classList.remove('active'));
     selectedBtn.classList.add('active');
     state.selectedTemplate = selectedBtn.dataset.template;
+    // Reset font sizes to new template defaults
+    resetFontSizesToTemplate();
+}
+
+/**
+ * Reset font sizes to template defaults
+ */
+function resetFontSizesToTemplate() {
+    const template = TEMPLATES[state.selectedTemplate];
+    if (!template) return;
+    
+    // Reset all custom font sizes to null (use template defaults)
+    state.customFontSizes = {
+        title: null,
+        subtitle: null,
+        body1: null,
+        body2: null,
+        footer: null
+    };
+}
+
+/**
+ * Handle font size change (+ or -)
+ */
+function handleFontSizeChange(field, action) {
+    const template = TEMPLATES[state.selectedTemplate];
+    if (!template) return;
+    
+    // Get the base font size from template
+    let baseSize;
+    if (field === 'body1' || field === 'body2') {
+        baseSize = template.fonts.body.size;
+    } else {
+        baseSize = template.fonts[field].size;
+    }
+    
+    // Get current custom size or use base size
+    const currentSize = state.customFontSizes[field] !== null 
+        ? state.customFontSizes[field] 
+        : baseSize;
+    
+    // Calculate new size (step of 4px)
+    const step = 4;
+    let newSize;
+    if (action === 'increase') {
+        newSize = currentSize + step;
+    } else {
+        newSize = Math.max(12, currentSize - step); // Minimum 12px
+    }
+    
+    // Store the custom size
+    state.customFontSizes[field] = newSize;
+    
+    console.log(`Font size for ${field} changed to ${newSize}px`);
+}
+
+/**
+ * Handle color change
+ */
+function handleColorChange(field, color) {
+    state.customColors[field] = color;
+    console.log(`Color for ${field} changed to ${color}`);
+}
+
+/**
+ * Get effective font size for a field (custom or template default)
+ */
+function getFontSize(field) {
+    if (state.customFontSizes[field] !== null) {
+        return state.customFontSizes[field];
+    }
+    
+    const template = TEMPLATES[state.selectedTemplate];
+    if (!template) return 40; // Fallback
+    
+    if (field === 'body1' || field === 'body2') {
+        return template.fonts.body.size;
+    }
+    return template.fonts[field].size;
+}
+
+/**
+ * Get effective color for a field (custom or default white)
+ */
+function getColor(field) {
+    return state.customColors[field] || '#FFFFFF';
 }
 
 /**
@@ -704,7 +827,6 @@ function drawOverlay(ctx) {
  */
 function drawTextElements(ctx, template) {
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#FFFFFF';
     
     const centerX = CANVAS_WIDTH / 2;
     let currentY;
@@ -712,50 +834,58 @@ function drawTextElements(ctx, template) {
     // Draw Title
     if (state.texts.title) {
         const titleFont = template.fonts.title;
-        ctx.font = `${titleFont.weight} ${titleFont.size}px ${titleFont.family}`;
+        const titleSize = getFontSize('title');
+        ctx.font = `${titleFont.weight} ${titleSize}px ${titleFont.family}`;
+        ctx.fillStyle = getColor('title');
         currentY = template.spacing.titleTop;
-        drawWrappedText(ctx, state.texts.title, centerX, currentY, CANVAS_WIDTH - 100, titleFont.size * titleFont.lineHeight);
+        drawWrappedText(ctx, state.texts.title, centerX, currentY, CANVAS_WIDTH - 100, titleSize * titleFont.lineHeight);
     }
     
     // Draw Subtitle
     if (state.texts.subtitle) {
         const subtitleFont = template.fonts.subtitle;
-        ctx.font = `${subtitleFont.weight} ${subtitleFont.size}px ${subtitleFont.family}`;
+        const subtitleSize = getFontSize('subtitle');
+        ctx.font = `${subtitleFont.weight} ${subtitleSize}px ${subtitleFont.family}`;
         
         // Calculate position based on title
         let subtitleY = template.spacing.titleTop;
         if (state.texts.title) {
             const titleFont = template.fonts.title;
-            const titleLines = getWrappedLines(ctx, state.texts.title, CANVAS_WIDTH - 100, `${titleFont.weight} ${titleFont.size}px ${titleFont.family}`);
-            subtitleY = template.spacing.titleTop + (titleLines.length * titleFont.size * titleFont.lineHeight) + template.spacing.subtitleGap;
+            const titleSize = getFontSize('title');
+            const titleLines = getWrappedLines(ctx, state.texts.title, CANVAS_WIDTH - 100, `${titleFont.weight} ${titleSize}px ${titleFont.family}`);
+            subtitleY = template.spacing.titleTop + (titleLines.length * titleSize * titleFont.lineHeight) + template.spacing.subtitleGap;
         }
         
-        ctx.font = `${subtitleFont.weight} ${subtitleFont.size}px ${subtitleFont.family}`;
-        drawWrappedText(ctx, state.texts.subtitle, centerX, subtitleY, CANVAS_WIDTH - 100, subtitleFont.size * subtitleFont.lineHeight);
+        ctx.font = `${subtitleFont.weight} ${subtitleSize}px ${subtitleFont.family}`;
+        ctx.fillStyle = getColor('subtitle');
+        drawWrappedText(ctx, state.texts.subtitle, centerX, subtitleY, CANVAS_WIDTH - 100, subtitleSize * subtitleFont.lineHeight);
     }
     
     // Draw Body Text (centered vertically)
     if (state.texts.body1 || state.texts.body2) {
         const bodyFont = template.fonts.body;
-        ctx.font = `${bodyFont.weight} ${bodyFont.size}px ${bodyFont.family}`;
+        const body1Size = getFontSize('body1');
+        const body2Size = getFontSize('body2');
         
-        // Calculate total body text height
-        let body1Lines = state.texts.body1 ? getWrappedLines(ctx, state.texts.body1, CANVAS_WIDTH - 120, `${bodyFont.weight} ${bodyFont.size}px ${bodyFont.family}`) : [];
-        let body2Lines = state.texts.body2 ? getWrappedLines(ctx, state.texts.body2, CANVAS_WIDTH - 120, `${bodyFont.weight} ${bodyFont.size}px ${bodyFont.family}`) : [];
+        // Calculate total body text height using actual sizes
+        let body1Lines = state.texts.body1 ? getWrappedLines(ctx, state.texts.body1, CANVAS_WIDTH - 120, `${bodyFont.weight} ${body1Size}px ${bodyFont.family}`) : [];
+        let body2Lines = state.texts.body2 ? getWrappedLines(ctx, state.texts.body2, CANVAS_WIDTH - 120, `${bodyFont.weight} ${body2Size}px ${bodyFont.family}`) : [];
         
-        const lineHeight = bodyFont.size * bodyFont.lineHeight;
-        const totalHeight = (body1Lines.length + body2Lines.length) * lineHeight + 
+        const body1LineHeight = body1Size * bodyFont.lineHeight;
+        const body2LineHeight = body2Size * bodyFont.lineHeight;
+        const totalHeight = (body1Lines.length * body1LineHeight) + (body2Lines.length * body2LineHeight) + 
                            (body1Lines.length && body2Lines.length ? template.spacing.bodyGap : 0);
         
         let bodyY = (CANVAS_HEIGHT - totalHeight) / 2;
         
         // Draw Body Text 1
         if (state.texts.body1) {
-            ctx.font = `${bodyFont.weight} ${bodyFont.size}px ${bodyFont.family}`;
+            ctx.font = `${bodyFont.weight} ${body1Size}px ${bodyFont.family}`;
+            ctx.fillStyle = getColor('body1');
             body1Lines.forEach((line, index) => {
-                ctx.fillText(line, centerX, bodyY + (index * lineHeight));
+                ctx.fillText(line, centerX, bodyY + (index * body1LineHeight));
             });
-            bodyY += body1Lines.length * lineHeight;
+            bodyY += body1Lines.length * body1LineHeight;
         }
         
         // Add gap between body texts
@@ -765,9 +895,10 @@ function drawTextElements(ctx, template) {
         
         // Draw Body Text 2
         if (state.texts.body2) {
-            ctx.font = `${bodyFont.weight} ${bodyFont.size}px ${bodyFont.family}`;
+            ctx.font = `${bodyFont.weight} ${body2Size}px ${bodyFont.family}`;
+            ctx.fillStyle = getColor('body2');
             body2Lines.forEach((line, index) => {
-                ctx.fillText(line, centerX, bodyY + (index * lineHeight));
+                ctx.fillText(line, centerX, bodyY + (index * body2LineHeight));
             });
         }
     }
@@ -775,7 +906,9 @@ function drawTextElements(ctx, template) {
     // Draw Footer
     if (state.texts.footer) {
         const footerFont = template.fonts.footer;
-        ctx.font = `${footerFont.weight} ${footerFont.size}px ${footerFont.family}`;
+        const footerSize = getFontSize('footer');
+        ctx.font = `${footerFont.weight} ${footerSize}px ${footerFont.family}`;
+        ctx.fillStyle = getColor('footer');
         
         // Set alignment based on user selection
         const padding = 60;
