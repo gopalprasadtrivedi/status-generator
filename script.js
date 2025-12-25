@@ -99,7 +99,7 @@ const TEMPLATES = {
         },
         spacing: {
             titleTop: 200,
-            subtitleGap: 50,
+            subtitleGap: 60,
             bodyGap: 80,
             footerBottom: 150
         }
@@ -134,7 +134,7 @@ const TEMPLATES = {
         },
         spacing: {
             titleTop: 220,
-            subtitleGap: 45,
+            subtitleGap: 55,
             bodyGap: 70,
             footerBottom: 140
         }
@@ -169,7 +169,7 @@ const TEMPLATES = {
         },
         spacing: {
             titleTop: 240,
-            subtitleGap: 55,
+            subtitleGap: 65,
             bodyGap: 90,
             footerBottom: 160
         }
@@ -204,7 +204,7 @@ const TEMPLATES = {
         },
         spacing: {
             titleTop: 190,
-            subtitleGap: 40,
+            subtitleGap: 50,
             bodyGap: 60,
             footerBottom: 130
         }
