@@ -306,7 +306,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
+    width: 60px;
     height: 36px;
     padding: 0;
     background: var(--bg-secondary);
@@ -785,11 +785,15 @@ body {
         gap: var(--spacing-xs);
     }
 
-    .font-size-btn,
+    .font-size-btn {
+        width: 55px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+
     .color-picker {
         width: 36px;
         height: 32px;
-        font-size: 0.85rem;
     }
 }
 
