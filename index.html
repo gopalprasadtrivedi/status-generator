@@ -156,10 +156,16 @@
 
             <!-- Generate Button -->
             <section class="generate-section">
-                <button type="button" id="generateBtn" class="generate-btn">
-                    <span class="btn-icon">🖼️</span>
-                    Generate Image
-                </button>
+                <div class="button-group">
+                    <button type="button" id="generateBtn" class="generate-btn">
+                        <span class="btn-icon">🖼️</span>
+                        Generate Image
+                    </button>
+                    <button type="button" id="previewBtn" class="preview-btn">
+                        <span class="btn-icon">👁️</span>
+                        Preview
+                    </button>
+                </div>
                 <p class="generate-hint">Image will download automatically</p>
             </section>
 
@@ -172,6 +178,28 @@
             </div>
 
         </main>
+
+        <!-- Preview Modal -->
+        <div id="previewModal" class="preview-modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Image Preview</h2>
+                    <button type="button" id="closeModalBtn" class="close-btn" aria-label="Close modal">
+                        ✕
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img id="previewImage" src="" alt="Generated image preview" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="downloadFromPreviewBtn" class="download-btn">
+                        <span class="btn-icon">⬇️</span>
+                        Download Image
+                    </button>
+                </div>
+            </div>
+        </div>
 
         <!-- Footer -->
         <footer class="app-footer">
