@@ -48,7 +48,7 @@ const THEME_CONFIG = {
     },
     astrological: {
         folder: 'assets/astrological',
-        imageCount: 7,  // Update this if you add more images
+        imageCount: 20,  // Update this if you add more images
         extension: 'jpg'
     },
     motivational: {
@@ -58,7 +58,7 @@ const THEME_CONFIG = {
     },
     general: {
         folder: 'assets/general',
-        imageCount: 7,  // Update this if you add more images
+        imageCount: 18,  // Update this if you add more images
         extension: 'jpg'
     }
 };
