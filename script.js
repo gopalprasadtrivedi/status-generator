@@ -242,7 +242,12 @@ const elements = {
     templateButtons: null,
     alignButtons: null,
     generateBtn: null,
+    previewBtn: null,
     loadingOverlay: null,
+    previewModal: null,
+    previewImage: null,
+    closeModalBtn: null,
+    downloadFromPreviewBtn: null,
     inputs: {
         title: null,
         subtitle: null,
@@ -325,7 +330,12 @@ function initializeElements() {
     elements.templateButtons = document.querySelectorAll('.template-btn');
     elements.alignButtons = document.querySelectorAll('.align-btn');
     elements.generateBtn = document.getElementById('generateBtn');
+    elements.previewBtn = document.getElementById('previewBtn');
     elements.loadingOverlay = document.getElementById('loadingOverlay');
+    elements.previewModal = document.getElementById('previewModal');
+    elements.previewImage = document.getElementById('previewImage');
+    elements.closeModalBtn = document.getElementById('closeModalBtn');
+    elements.downloadFromPreviewBtn = document.getElementById('downloadFromPreviewBtn');
     
     elements.inputs.title = document.getElementById('titleText');
     elements.inputs.subtitle = document.getElementById('subtitleText');
@@ -355,6 +365,28 @@ function attachEventListeners() {
     
     // Generate button
     elements.generateBtn.addEventListener('click', handleGenerate);
+    
+    // Preview button
+    elements.previewBtn.addEventListener('click', handlePreview);
+    
+    // Modal close buttons
+    elements.closeModalBtn.addEventListener('click', closeModal);
+    elements.downloadFromPreviewBtn.addEventListener('click', downloadImage);
+    
+    // Close modal when clicking overlay
+    if (elements.previewModal) {
+        const modalOverlay = elements.previewModal.querySelector('.modal-overlay');
+        if (modalOverlay) {
+            modalOverlay.addEventListener('click', closeModal);
+        }
+    }
+    
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !elements.previewModal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
     
     // Text input changes
     Object.keys(elements.inputs).forEach(key => {
@@ -432,6 +464,54 @@ async function handleGenerate() {
         console.log('Image download initiated');
     } catch (error) {
         console.error('Error generating image:', error);
+        console.error('Error stack:', error.stack);
+        console.error('Error details:', {
+            message: error.message,
+            name: error.name,
+            theme: state.selectedTheme,
+            template: state.selectedTemplate
+        });
+        alert(`Error creating image: ${error.message}\n\nPlease check the browser console for details.`);
+    } finally {
+        hideLoading();
+    }
+}
+
+/**
+ * Handle preview button click
+ */
+async function handlePreview() {
+    // Update state with current input values
+    state.texts.title = elements.inputs.title.value.trim();
+    state.texts.subtitle = elements.inputs.subtitle.value.trim();
+    state.texts.body1 = elements.inputs.body1.value.trim();
+    state.texts.body2 = elements.inputs.body2.value.trim();
+    state.texts.footer = elements.inputs.footer.value.trim();
+    
+    // Validate canvas is initialized
+    if (!elements.canvas || !elements.ctx) {
+        alert('Error: Canvas not initialized. Please refresh the page.');
+        console.error('Canvas elements not found:', { canvas: elements.canvas, ctx: elements.ctx });
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        // Wait for fonts to be ready
+        console.log('Waiting for fonts to load...');
+        await document.fonts.ready;
+        console.log('Fonts loaded successfully');
+        
+        // Generate the image
+        console.log('Starting image generation for preview...');
+        await generateImage();
+        console.log('Image generation completed');
+        
+        // Show preview modal
+        showPreview();
+    } catch (error) {
+        console.error('Error generating image for preview:', error);
         console.error('Error stack:', error.stack);
         console.error('Error details:', {
             message: error.message,
@@ -831,5 +911,45 @@ function showLoading() {
  */
 function hideLoading() {
     elements.loadingOverlay.classList.add('hidden');
+}
+
+/**
+ * Show preview modal with generated image
+ */
+function showPreview() {
+    try {
+        if (!elements.canvas) {
+            throw new Error('Canvas element not available');
+        }
+        
+        const dataURL = elements.canvas.toDataURL('image/png', 1.0);
+        
+        if (!dataURL || dataURL === 'data:,') {
+            throw new Error('Failed to generate image data');
+        }
+        
+        // Set the image source
+        elements.previewImage.src = dataURL;
+        
+        // Show the modal
+        elements.previewModal.classList.remove('hidden');
+        
+        // Prevent body scroll when modal is open
+        document.body.style.overflow = 'hidden';
+        
+        console.log('Preview modal opened successfully');
+    } catch (error) {
+        console.error('Error showing preview:', error);
+        alert(`Error showing preview: ${error.message}`);
+    }
+}
+
+/**
+ * Close preview modal
+ */
+function closeModal() {
+    elements.previewModal.classList.add('hidden');
+    document.body.style.overflow = '';
+    console.log('Preview modal closed');
 }
 
