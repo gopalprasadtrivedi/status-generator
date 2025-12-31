@@ -331,6 +331,35 @@ body {
     transform: scale(0.95);
 }
 
+.position-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 36px;
+    padding: 0;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-primary);
+}
+
+.position-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.position-btn:active {
+    transform: scale(0.95);
+}
+
 .color-picker {
     width: 40px;
     height: 36px;
@@ -791,6 +820,12 @@ body {
         font-size: 0.85rem;
     }
 
+    .position-btn {
+        width: 48px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
     .color-picker {
         width: 36px;
         height: 32px;
@@ -846,4 +881,3 @@ body {
         border-width: 3px;
     }
 }
-
