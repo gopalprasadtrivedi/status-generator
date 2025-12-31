@@ -244,6 +244,14 @@ const state = {
         body1: null,
         body2: null,
         footer: null
+    },
+    // Vertical position offsets (0 means no offset)
+    verticalOffsets: {
+        title: 0,
+        subtitle: 0,
+        body1: 0,
+        body2: 0,
+        footer: 0
     }
 };
 
@@ -386,6 +394,15 @@ function attachEventListeners() {
         });
     });
     
+    // Position buttons (up/down)
+    document.querySelectorAll('.position-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const field = e.target.dataset.field;
+            const action = e.target.dataset.action;
+            handlePositionChange(field, action);
+        });
+    });
+    
     // Color pickers
     document.querySelectorAll('.color-picker').forEach(picker => {
         picker.addEventListener('change', (e) => {
@@ -515,6 +532,27 @@ function handleFontSizeChange(field, action) {
 function handleColorChange(field, color) {
     state.customColors[field] = color;
     console.log(`Color for ${field} changed to ${color}`);
+}
+
+/**
+ * Handle position change (up or down)
+ */
+function handlePositionChange(field, action) {
+    const step = 10; // Move by 10px per click
+    const currentOffset = state.verticalOffsets[field] || 0;
+    
+    let newOffset;
+    if (action === 'up') {
+        newOffset = currentOffset - step;
+    } else {
+        newOffset = currentOffset + step;
+    }
+    
+    // Set reasonable limits (e.g., -300px to +300px)
+    newOffset = Math.max(-300, Math.min(300, newOffset));
+    
+    state.verticalOffsets[field] = newOffset;
+    console.log(`Vertical offset for ${field} changed to ${newOffset}px`);
 }
 
 /**
@@ -837,7 +875,7 @@ function drawTextElements(ctx, template) {
         const titleSize = getFontSize('title');
         ctx.font = `${titleFont.weight} ${titleSize}px ${titleFont.family}`;
         ctx.fillStyle = getColor('title');
-        currentY = template.spacing.titleTop;
+        currentY = template.spacing.titleTop + (state.verticalOffsets.title || 0);
         drawWrappedText(ctx, state.texts.title, centerX, currentY, CANVAS_WIDTH - 100, titleSize * titleFont.lineHeight);
     }
     
@@ -855,6 +893,9 @@ function drawTextElements(ctx, template) {
             const titleLines = getWrappedLines(ctx, state.texts.title, CANVAS_WIDTH - 100, `${titleFont.weight} ${titleSize}px ${titleFont.family}`);
             subtitleY = template.spacing.titleTop + (titleLines.length * titleSize * titleFont.lineHeight) + template.spacing.subtitleGap;
         }
+        
+        // Apply vertical offset
+        subtitleY += (state.verticalOffsets.subtitle || 0);
         
         ctx.font = `${subtitleFont.weight} ${subtitleSize}px ${subtitleFont.family}`;
         ctx.fillStyle = getColor('subtitle');
@@ -878,6 +919,9 @@ function drawTextElements(ctx, template) {
         
         let bodyY = (CANVAS_HEIGHT - totalHeight) / 2;
         
+        // Apply vertical offset to body1
+        bodyY += (state.verticalOffsets.body1 || 0);
+        
         // Draw Body Text 1
         if (state.texts.body1) {
             ctx.font = `${bodyFont.weight} ${body1Size}px ${bodyFont.family}`;
@@ -895,10 +939,12 @@ function drawTextElements(ctx, template) {
         
         // Draw Body Text 2
         if (state.texts.body2) {
+            // Apply vertical offset to body2
+            const body2Y = bodyY + (state.verticalOffsets.body2 || 0);
             ctx.font = `${bodyFont.weight} ${body2Size}px ${bodyFont.family}`;
             ctx.fillStyle = getColor('body2');
             body2Lines.forEach((line, index) => {
-                ctx.fillText(line, centerX, bodyY + (index * body2LineHeight));
+                ctx.fillText(line, centerX, body2Y + (index * body2LineHeight));
             });
         }
     }
@@ -928,7 +974,7 @@ function drawTextElements(ctx, template) {
                 footerX = centerX;
         }
         
-        const footerY = CANVAS_HEIGHT - template.spacing.footerBottom;
+        const footerY = CANVAS_HEIGHT - template.spacing.footerBottom + (state.verticalOffsets.footer || 0);
         ctx.fillText(state.texts.footer, footerX, footerY);
         
         // Reset alignment
@@ -1085,4 +1131,3 @@ function closeModal() {
     document.body.style.overflow = '';
     console.log('Preview modal closed');
 }
-
