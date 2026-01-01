@@ -222,6 +222,7 @@ const state = {
     selectedTheme: 'patriotic',
     selectedTemplate: 'classic',
     footerAlignment: 'center',
+    applyOverlay: true, // Default to true to maintain current behavior
     texts: {
         title: '',
         subtitle: '',
@@ -252,7 +253,9 @@ const state = {
         body1: 0,
         body2: 0,
         footer: 0
-    }
+    },
+    // Selected image index (null means not selected yet, will show selection modal)
+    selectedImageIndex: null
 };
 
 // ============================================
@@ -272,6 +275,11 @@ const elements = {
     previewImage: null,
     closeModalBtn: null,
     downloadFromPreviewBtn: null,
+    overlayToggle: null,
+    imageSelectionModal: null,
+    imageGrid: null,
+    closeImageModalBtn: null,
+    changeImageBtn: null,
     inputs: {
         title: null,
         subtitle: null,
@@ -367,6 +375,17 @@ function initializeElements() {
     elements.inputs.body2 = document.getElementById('bodyText2');
     elements.inputs.footer = document.getElementById('footerText');
     
+    elements.overlayToggle = document.getElementById('overlayToggle');
+    elements.imageSelectionModal = document.getElementById('imageSelectionModal');
+    elements.imageGrid = document.getElementById('imageGrid');
+    elements.closeImageModalBtn = document.getElementById('closeImageModalBtn');
+    elements.changeImageBtn = document.getElementById('changeImageBtn');
+    
+    // Initialize checkbox visual state
+    if (elements.overlayToggle) {
+        updateCheckboxVisualState(elements.overlayToggle);
+    }
+    
     // Initialize font sizes from default template
     resetFontSizesToTemplate();
 }
@@ -412,6 +431,15 @@ function attachEventListeners() {
         });
     });
     
+    // Overlay toggle
+    if (elements.overlayToggle) {
+        elements.overlayToggle.addEventListener('change', (e) => {
+            state.applyOverlay = e.target.checked;
+            updateCheckboxVisualState(e.target);
+            console.log(`Overlay ${state.applyOverlay ? 'enabled' : 'disabled'}`);
+        });
+    }
+    
     // Alignment selection
     elements.alignButtons.forEach(btn => {
         btn.addEventListener('click', () => handleAlignmentSelect(btn));
@@ -437,10 +465,35 @@ function attachEventListeners() {
     
     // Close modal on Escape key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !elements.previewModal.classList.contains('hidden')) {
-            closeModal();
+        if (e.key === 'Escape') {
+            if (elements.previewModal && !elements.previewModal.classList.contains('hidden')) {
+                closeModal();
+            }
+            if (elements.imageSelectionModal && !elements.imageSelectionModal.classList.contains('hidden')) {
+                closeImageSelectionModal();
+            }
         }
     });
+    
+    // Change Image button
+    if (elements.changeImageBtn) {
+        elements.changeImageBtn.addEventListener('click', () => {
+            showImageSelectionModal();
+        });
+    }
+    
+    // Close image selection modal
+    if (elements.closeImageModalBtn) {
+        elements.closeImageModalBtn.addEventListener('click', closeImageSelectionModal);
+    }
+    
+    // Close image modal when clicking overlay
+    if (elements.imageSelectionModal) {
+        const imageModalOverlay = elements.imageSelectionModal.querySelector('.modal-overlay');
+        if (imageModalOverlay) {
+            imageModalOverlay.addEventListener('click', closeImageSelectionModal);
+        }
+    }
     
     // Text input changes
     Object.keys(elements.inputs).forEach(key => {
@@ -461,6 +514,8 @@ function handleThemeSelect(selectedBtn) {
     elements.themeButtons.forEach(btn => btn.classList.remove('active'));
     selectedBtn.classList.add('active');
     state.selectedTheme = selectedBtn.dataset.theme;
+    // Reset selected image when theme changes
+    state.selectedImageIndex = null;
 }
 
 /**
@@ -580,6 +635,93 @@ function getColor(field) {
 }
 
 /**
+ * Update checkbox visual state
+ */
+function updateCheckboxVisualState(checkbox) {
+    const checkboxContainer = checkbox.closest('.custom-checkbox');
+    if (checkboxContainer) {
+        if (checkbox.checked) {
+            checkboxContainer.classList.add('checked');
+        } else {
+            checkboxContainer.classList.remove('checked');
+        }
+    }
+}
+
+/**
+ * Show image selection modal
+ */
+function showImageSelectionModal() {
+    if (!elements.imageGrid || !elements.imageSelectionModal) return;
+    
+    const themeConfig = THEME_CONFIG[state.selectedTheme];
+    if (!themeConfig) return;
+    
+    // Clear existing images
+    elements.imageGrid.innerHTML = '';
+    
+    // Create image grid items
+    for (let i = 1; i <= themeConfig.imageCount; i++) {
+        const folderPath = themeConfig.folder.replace(/^\//, '');
+        const imagePath = `${folderPath}/${i}.${themeConfig.extension}`;
+        
+        const gridItem = document.createElement('div');
+        gridItem.className = 'image-grid-item';
+        if (state.selectedImageIndex === i) {
+            gridItem.classList.add('selected');
+        }
+        gridItem.dataset.imageIndex = i;
+        
+        const img = document.createElement('img');
+        img.src = imagePath;
+        img.alt = `Image ${i}`;
+        img.loading = 'lazy';
+        
+        const checkOverlay = document.createElement('div');
+        checkOverlay.className = 'check-overlay';
+        checkOverlay.textContent = '✓';
+        
+        gridItem.appendChild(img);
+        gridItem.appendChild(checkOverlay);
+        
+        gridItem.addEventListener('click', () => {
+            // Remove selected class from all items
+            elements.imageGrid.querySelectorAll('.image-grid-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            // Add selected class to clicked item
+            gridItem.classList.add('selected');
+            // Update state
+            state.selectedImageIndex = i;
+            // Show change image button
+            if (elements.changeImageBtn) {
+                elements.changeImageBtn.style.display = 'inline-flex';
+            }
+            // Close modal after short delay
+            setTimeout(() => {
+                closeImageSelectionModal();
+            }, 300);
+        });
+        
+        elements.imageGrid.appendChild(gridItem);
+    }
+    
+    // Show modal
+    elements.imageSelectionModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Close image selection modal
+ */
+function closeImageSelectionModal() {
+    if (elements.imageSelectionModal) {
+        elements.imageSelectionModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+}
+
+/**
  * Handle alignment button selection
  */
 function handleAlignmentSelect(selectedBtn) {
@@ -598,6 +740,17 @@ async function handleGenerate() {
     state.texts.body1 = elements.inputs.body1.value.trim();
     state.texts.body2 = elements.inputs.body2.value.trim();
     state.texts.footer = elements.inputs.footer.value.trim();
+    
+    // Update overlay state
+    if (elements.overlayToggle) {
+        state.applyOverlay = elements.overlayToggle.checked;
+    }
+    
+    // Check if image is selected, if not show selection modal
+    if (state.selectedImageIndex === null) {
+        showImageSelectionModal();
+        return;
+    }
     
     // Validate canvas is initialized
     if (!elements.canvas || !elements.ctx) {
@@ -648,6 +801,17 @@ async function handlePreview() {
     state.texts.body1 = elements.inputs.body1.value.trim();
     state.texts.body2 = elements.inputs.body2.value.trim();
     state.texts.footer = elements.inputs.footer.value.trim();
+    
+    // Update overlay state
+    if (elements.overlayToggle) {
+        state.applyOverlay = elements.overlayToggle.checked;
+    }
+    
+    // Check if image is selected, if not show selection modal
+    if (state.selectedImageIndex === null) {
+        showImageSelectionModal();
+        return;
+    }
     
     // Validate canvas is initialized
     if (!elements.canvas || !elements.ctx) {
@@ -726,12 +890,14 @@ function drawBackground(ctx) {
             return;
         }
         
-        // Select a random image from the theme folder
-        const randomIndex = Math.floor(Math.random() * themeConfig.imageCount) + 1;
+        // Use selected image index, or fallback to random if somehow null
+        const imageIndex = state.selectedImageIndex !== null 
+            ? state.selectedImageIndex 
+            : Math.floor(Math.random() * themeConfig.imageCount) + 1;
         // Construct image path relative to HTML file location (ensure it's relative)
         // Remove any leading slashes to ensure relative path
         const folderPath = themeConfig.folder.replace(/^\//, '');
-        const imagePath = `${folderPath}/${randomIndex}.${themeConfig.extension}`;
+        const imagePath = `${folderPath}/${imageIndex}.${themeConfig.extension}`;
         
         console.log(`Loading image from: ${imagePath} (Theme: ${state.selectedTheme})`);
         console.log(`Full URL will be: ${window.location.origin}/${imagePath}`);
@@ -853,9 +1019,12 @@ function drawFallbackBackground(ctx) {
 }
 
 /**
- * Draw semi-transparent black overlay
+ * Draw semi-transparent black overlay (only if enabled)
  */
 function drawOverlay(ctx) {
+    if (!state.applyOverlay) {
+        return; // Skip overlay if disabled
+    }
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 }
