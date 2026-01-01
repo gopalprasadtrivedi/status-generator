@@ -25,10 +25,16 @@
             
             <!-- Step 1: Theme Selection -->
             <section class="form-section">
-                <h2 class="section-title">
-                    <span class="step-number">1</span>
-                    Choose Theme
-                </h2>
+                <div class="theme-header">
+                    <h2 class="section-title">
+                        <span class="step-number">1</span>
+                        Choose Theme
+                    </h2>
+                    <button type="button" id="changeImageBtn" class="change-image-btn" style="display: none;">
+                        <span class="btn-icon">🖼️</span>
+                        Change Image
+                    </button>
+                </div>
                 <div class="theme-grid" id="themeGrid">
                     <button type="button" class="theme-btn active" data-theme="patriotic">
                         <span class="theme-icon">🇮🇳</span>
@@ -182,6 +188,18 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Overlay Toggle -->
+                <div class="input-group">
+                    <label class="toggle-label" for="overlayToggle">
+                        <span class="custom-checkbox">
+                            <input type="checkbox" id="overlayToggle" checked>
+                            <span class="checkmark">✓</span>
+                        </span>
+                        <span class="toggle-text">Apply Dark Overlay</span>
+                    </label>
+                    <p class="toggle-hint">Adds a semi-transparent dark layer over the background image for better text readability</p>
+                </div>
             </section>
 
             <!-- Generate Button -->
@@ -208,6 +226,24 @@
             </div>
 
         </main>
+
+        <!-- Image Selection Modal -->
+        <div id="imageSelectionModal" class="image-selection-modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content image-modal-content">
+                <div class="modal-header">
+                    <h2>Select Background Image</h2>
+                    <button type="button" id="closeImageModalBtn" class="close-btn" aria-label="Close modal">
+                        ✕
+                    </button>
+                </div>
+                <div class="modal-body image-grid-container">
+                    <div id="imageGrid" class="image-grid">
+                        <!-- Images will be dynamically inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Preview Modal -->
         <div id="previewModal" class="preview-modal hidden">
