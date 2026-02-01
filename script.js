@@ -58,7 +58,7 @@ const THEME_CONFIG = {
     },
     general: {
         folder: 'assets/general',
-        imageCount: 18,  // Update this if you add more images
+        imageCount: 32,  // Update this if you add more images
         extension: 'jpg'
     }
 };
